@@ -10,9 +10,9 @@ from matplotlib.animation import FuncAnimation
 from NW import NW
 
 np.random.seed(0)
-train_x = np.linspace(-np.pi, np.pi, 10)
+train_x = np.linspace(-5, 5, 10)
 train_y = np.sin(train_x) + np.random.randn(*train_x.shape) / 8
-test_x = np.linspace(-5, 5, 100)  # 新規のデータ
+test_x = np.linspace(-6, 6, 100)  # 新規のデータ
 resolution = 100
 sigmas = np.linspace(0.001, 5, resolution)[::-1]
 fig = plt.figure(figsize=(10, 8))
@@ -32,7 +32,7 @@ if __name__ == '__main__':
                         update,
                         frames=resolution,
                         repeat=True,
-                        interval=100,
+                        interval=180,
                         fargs=(fig, ax))
     # plt.show()
     ani.save(f"sigma_animation.mp4", writer='ffmpeg')

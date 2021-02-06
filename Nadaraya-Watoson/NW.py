@@ -15,10 +15,10 @@ class NW():
 
 if __name__ == '__main__':
     np.random.seed(0)
-    train_x = np.linspace(-np.pi, np.pi, 10)
+    train_x = np.linspace(-5, 5, 10)
     train_y = np.sin(train_x) + np.random.randn(*train_x.shape) / 8
-    test_x = np.linspace(-5, 5, 100) #新規のデータ
-    nw = NW(σ:=0.8)
+    test_x = np.linspace(-6, 6, 100) #新規のデータ
+    nw = NW(σ:=0.1)
     pred_y = nw.fit(train_x, train_y, test_x)
     fig = plt.figure()
     plt.scatter(train_x, train_y, c='b', lw=2, label="train")
@@ -27,4 +27,5 @@ if __name__ == '__main__':
     plt.legend()
     plt.xlabel('x')
     plt.ylabel('y')
+    fig.savefig("img.png")
     plt.show()
