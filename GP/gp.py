@@ -27,7 +27,6 @@ if __name__ == "__main__":
     resolution =  20
     x_train = np.sort(np.random.rand(resolution) * 15)
     y = np.sin(x_train) + np.random.rand(len(x_train))
-
     x_test = np.linspace(0, 20, resolution)
 
     model = gpr(σ=1.0)
