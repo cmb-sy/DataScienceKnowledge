@@ -16,6 +16,7 @@ class SOM(object):
             σ = ((self.σ_min - self.σ_max) / self.T)*T + self.σ_max
             Dist = np.sum((X[None, :, :] - self.y[:, None, :])**2,axis=2)
             k_star = np.argmin(Dist, axis=0)
+            print(k_star.shape)
             Z = zeta[k_star, :]
             self.y = self.NW(zeta, Z, X, σ)
 
