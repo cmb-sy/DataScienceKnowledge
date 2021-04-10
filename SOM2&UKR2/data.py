@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-wq
-=======
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -29,4 +26,4 @@ if __name__ == '__main__':
     plt.scatter(X[0, :, 0], X[0, :, 1])
     plt.scatter(X[1, :, 0], X[1, :, 1])
     plt.show()
->>>>>>> 7e39658 (make kura data.)
+
