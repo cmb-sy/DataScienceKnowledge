@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 # J : タスク
 
 class SOM2(object):
-    def __init__(self, X, latent_dim, epoch, K, σ_max, σ_min):
+    def __init__(self, X, latent_dim, epoch, K, σ_max, σ_min, H):
+        np.random.seed(seed=0)
         self.X = X
         self.J, self.N, self.D = self.X.shape
         self.L = latent_dim
@@ -14,7 +15,7 @@ class SOM2(object):
         self.T = epoch
         self.σ_max = σ_max
         self.σ_min = σ_min
-        self.H = 10 #親SOMの離散化された数
+        self.H = H #親SOMの離散化された数
         self.V = 1 #親SOMの潜在空間の次元
         self.kid_Z = np.random.rand(self.J,self.N,self.L)
         self.kid_zeta = np.random.rand(self.J, self.K, self.L)
@@ -23,12 +24,11 @@ class SOM2(object):
         self.kid_y = np.zeros((self.J, self.K, self.D))
 
     def fit(self):
-        np.random.seed(seed=0)
         J, N, D = self.X.shape
         for T in range(self.T):
             for j in range(J):
                 self.kid_som_fit(j, T)
-            self.parent_som_fit()
+            self.parent_som_fit(T)
             self.kid_y = self.kid_y.reshape(self.J, self.K, self.D)
 
     def kid_som_fit(self,j, T):
@@ -45,16 +45,15 @@ class SOM2(object):
         H = K.T @ X[j]
         return H / G
 
-    def parent_som_fit(self):
+    def parent_som_fit(self, T):
         self.kid_y = self.kid_y.reshape(self.J, self.K*self.D)  # J : タスク , 20 = 離散化 * 次元(子SOM参照ベクトル)
-        for pT in range(self.T):
-            self.parent_y = self.parent_NW(self.parent_zeta, self.parent_Z, self.kid_y, pT)
-            Dist = np.sum((self.parent_Z[None, :, :] - self.kid_y[:, None, :]) ** 2, axis=2)
-            k_star = np.argmin(Dist, axis=0)
-            self.parent_Z = self.parent_zeta[k_star, :]
+        self.parent_y = self.parent_NW(self.parent_zeta, self.parent_Z, self.kid_y, T)
+        Dist = np.sum((self.parent_y[None, :, :] - self.kid_y[:, None, :]) ** 2, axis=2)
+        k_star = np.argmin(Dist, axis=1)
+        self.parent_Z = self.parent_zeta[k_star, :]
 
-    def parent_NW(self, parent_zeta, parent_Z, kid_y, pT):
-        parent_σ = ((self.σ_min - self.σ_max) / self.T) * pT + self.σ_max
+    def parent_NW(self, parent_zeta, parent_Z, kid_y, T):
+        parent_σ = ((self.σ_min - self.σ_max) / self.T) * T + self.σ_max
         Dist = np.sum((parent_zeta[None, :, :] - parent_Z[:, None, :])**2, axis=2)
         K = np.exp(-0.5/(parent_σ**2)*Dist)
         G = np.sum(K, axis=0)[:, None]
@@ -62,20 +61,38 @@ class SOM2(object):
         return H / G
 
 if __name__ == '__main__':
+    np.random.seed(seed=3)
     X = create_linear_convex(100)
     # X.shape : (2, 100, 2) タスク, データ数, 観測空間の次元
-    som2 = SOM2(X, latent_dim=1, epoch=100, K=100, σ_max=2.0, σ_min=0.03)
+    som2 = SOM2(X, latent_dim=1, epoch=300, K=100, σ_max=5.0, σ_min=0.003, H=3)
     som2.fit()
 
-    print(som2.parent_y.shape)
-
     fig = plt.figure(figsize=(5, 5))
-    ax = fig.add_subplot(111)
-    ax.set_aspect('equal', adjustable='box')
-    plt.scatter(X[0, :, 0], X[0, :, 1])
-    plt.scatter(X[1, :, 0], X[1, :, 1])
+    ax_kid_observable = fig.add_subplot(111)
+
+    ax_kid_observable.scatter(X[0, :, 0], X[0, :, 1])
+    ax_kid_observable.scatter(X[1, :, 0], X[1, :, 1])
+
+    H=3
+    c=["b","r","g"]
+    print(som2.parent_y.shape)
+    som2.parent_y = som2.parent_y.reshape(H, 100, 2) #100はK
+    # for h in range(H):
+    # ax_kid_observable.scatter(som2.parent_y[h, :, 0], som2.parent_y[h, :, 1], c=c[h])
+    # ax_kid_observable.scatter(som2.parent_y[0, :, 0], som2.parent_y[0, :, 1], c="b")
+    # ax_kid_observable.scatter(som2.parent_y[1, :, 0], som2.parent_y[1, :, 1], c="y")
+    # ax_kid_observable.scatter(som2.parent_y[2, :, 0], som2.parent_y[2, :, 1], c="g")
+    #
+    ax_kid_observable.plot(som2.kid_y[0, :, 0], som2.kid_y[0, :, 1], c="b")
+    ax_kid_observable.plot(som2.kid_y[1, :, 0], som2.kid_y[1, :, 1], c="y")
+    # ax_kid_observable.plot(som2.parent_y[0, :, 0], som2.parent_y[0, :, 1], c="b")
+    # ax_kid_observable.plot(som2.parent_y[1, :, 0], som2.parent_y[1, :, 1], c="y")
+    # ax_kid_observable.plot(som2.parent_y[2, :, 0], som2.parent_y[2, :, 1], c="g")
+
+    # list_x = []
+    # list_y = []
+    # for h in range(2):
+    #     list_x.append(som2.parent_y[h,:,0])
+    #     list_y.append(som2.parent_y[h,:,1])
+    # plt.plot(list_x, list_y)
     plt.show()
-
-
-
-
