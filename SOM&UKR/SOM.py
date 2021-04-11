@@ -11,13 +11,15 @@ class SOM(object):
 
     def fit(self, X):
         N, D = X.shape
-        zeta = np.random.rand(N, self.L)
+        zeta = np.random.rand(10, self.L)
         for T in range(self.T):
             σ = ((self.σ_min - self.σ_max) / self.T)*T + self.σ_max
             Dist = np.sum((X[None, :, :] - self.y[:, None, :])**2,axis=2)
+            #次元Dをsumしている。それにより, N*K
             k_star = np.argmin(Dist, axis=0)
-            print(k_star.shape)
+            # 最も小さい参照ベクトル番号を求める(X分), そのため、100次元ベクトルが出力
             Z = zeta[k_star, :]
+            # 潜在空間の座標に100個のデータ分の勝者ノード番号をいれる [,:]としたのは後の計算のため,(100,1)になる。
             self.y = self.NW(zeta, Z, X, σ)
 
     def NW(self, zeta, Z, X, σ):
@@ -26,6 +28,8 @@ class SOM(object):
         # G = np.sum(K, axis=1).reshape(-1,1)
         G = np.sum(K, axis=0)[:, None]
         H = K.T @ X
+        print("K",K.shape)
+        print(G.shape)
         return H / G
 
 if __name__ == '__main__':
@@ -39,7 +43,7 @@ if __name__ == '__main__':
 
     plt.scatter(X[:,0], X[:,1])
     plt.scatter(som.y[:,0],som.y[:,1])
-    plt.show()
+    # plt.show()
 
 
 
