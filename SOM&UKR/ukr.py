@@ -5,7 +5,7 @@ from scipy.spatial import distance as dist
 from tqdm import tqdm
 
 class UKR:
-    def __init__(self,X,epoch,lamda,wire,eta,latent_dim,sigma, seed, cliping=False):
+    def __init__(self, X, epoch, lamda, wire, eta, latent_dim, sigma, seed, cliping=False):
         self.lamda = lamda
         self.wire = wire
         self.eta = eta
@@ -30,7 +30,6 @@ class UKR:
             self.history_y[t] = self.y
 
             z_new = np.dstack(np.meshgrid(np.linspace(min(self.z[:,0]),max(self.z[:,0]),self.wire), np.linspace(min(self.z[:,1]),max(self.z[:,1]),self.wire)))
-            # print(z_new.shape)
             z_new = np.reshape(z_new,(-1,2))
             self.y_new = self.nadareya_estimate(z_new,self.z).reshape(self.wire,self.wire,self.D)
             self.history_y_new[t] = self.y_new
@@ -57,17 +56,17 @@ if __name__ == '__main__':
     X = gen_saddle_shape(100, noise_scale=0.0)
     ukr = UKR(X ,epoch=100, lamda=0.0001, wire=10, eta=2, latent_dim=2, sigma=1, seed=0)
     ukr.fit()
+    print(ukr.history_y)
 
 # ---------描写---------------------------------------------------------------
     fig = plt.figure(figsize=(10, 5))
     ax_observable = fig.add_subplot(122, projection='3d')
     ax_latent = fig.add_subplot(121)
 
-    def update(i, z, y, x , y_new):
+    def update(i, z, y, x, y_new):
         plt.cla()
         ax_latent.cla()
         ax_observable.cla()
-        #
         ax_latent.scatter(z[i,:, 0], z[i,:, 1], s=25, alpha=0.5 , c=x[:,0])
         ax_observable.scatter(x[:, 0], x[:, 1], x[:, 2], s=8, c=x[:,0])
         ax_observable.scatter(y[i,:, 0], y[i,:, 1], y[i,:, 2], s=4,c="r")
