@@ -46,31 +46,32 @@ if __name__ == '__main__':
     X[:,1] = np.sin(X[:,0])
     som = SOM(latent_dim=1, epoch=100, K=100, σ_max=2.0, σ_min=0.03)
     som.fit(X)
+    print(som.history_Z.shape)
 
-    # fig = plt.figure(figsize=(10, 5))
-    # ax_observable = fig.add_subplot(122, projection='3d')
-    # ax_latent = fig.add_subplot(121)
-    # #
-    # def update(i, z, f, x):
-    #     plt.cla()
-    #     ax_latent.cla()
-    #     ax_observable.cla()
+    fig = plt.figure(figsize=(10, 5))
+    ax_observable = fig.add_subplot(122, projection='3d')
+    ax_latent = fig.add_subplot(121)
     #
-    #     fig.suptitle(f"epoch: {i}")
-    #     ax_latent.scatter(z[i, :, 0], s=50, edgecolors="k", c=x[:, 0])
-    #     ax_observable.scatter(x[:, 0], x[:, 1], c=x[:, 0], s=50, marker='x')
-    #     ax_observable.scatter(f[i, :, 0], f[i, :, 1], color='black')
-    #
-    #     ax_observable.set_xlim(x[:, 0].min(), x[:, 0].max())
-    #     ax_observable.set_ylim(x[:, 1].min(), x[:, 1].max())
-    #
-    #     ax_observable.set_title('observable_space')
-    #     ax_observable.set_xlabel("X_dim")
-    #     ax_observable.set_ylabel("Y_dim")
-    #
-    #     ax_latent.set_title('latent_space')
-    #     ax_latent.set_xlabel("X_dim")
-    #
-    # ani = animation.FuncAnimation(fig, update, fargs=(som.history_Z, som.history_y, X), interval=100, frames=100)
-    # # ani.save("tmp.gif", writer = "pillow")
-    # plt.show()
+    def update(i, z, f, x):
+        plt.cla()
+        ax_latent.cla()
+        ax_observable.cla()
+
+        fig.suptitle(f"epoch: {i}")
+        ax_latent.scatter(z[i, :, 0], z[i, :, 0], s=50, edgecolors="k", c=x[:, 0])
+        ax_observable.scatter(x[:, 0], x[:, 1], c=x[:, 0], s=50, marker='x')
+        ax_observable.scatter(f[i, :, 0], f[i, :, 1], color='black')
+
+        ax_observable.set_xlim(x[:, 0].min(), x[:, 0].max())
+        ax_observable.set_ylim(x[:, 1].min(), x[:, 1].max())
+
+        ax_observable.set_title('observable_space')
+        ax_observable.set_xlabel("X_dim")
+        ax_observable.set_ylabel("Y_dim")
+
+        ax_latent.set_title('latent_space')
+        ax_latent.set_xlabel("X_dim")
+
+    ani = animation.FuncAnimation(fig, update, fargs=(som.history_Z, som.history_y, X), interval=100, frames=100)
+    # ani.save("tmp.gif", writer = "pillow")
+    plt.show()
