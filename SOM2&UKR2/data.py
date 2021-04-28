@@ -1,19 +1,30 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def create_linear_convex(n_sample):
-    """    サンプル数が同じ（固定長な）2次元の直線と凸関数のデータセットを返す．
-       :param n_sample: 1クラスあたりのサンプル数．
-       :returns: 形状が(class=2, n_sample, dim=2)のnumpy配列を返す．    """
-    datasets = np.zeros((2, n_sample, 2))
-    z_linear = np.random.rand(n_sample) * 2 - 1
-    f_linear = len(z_linear) * [3]
-    z_quadratic = np.random.rand(n_sample) * 2 - 1
-    f_quadratic = z_quadratic ** 2
-    datasets[0, :, 0] = z_linear
-    datasets[0, :, 1] = f_linear
-    datasets[1, :, 0] = z_quadratic
-    datasets[1, :, 1] = f_quadratic
+def create_triangle3d(n_class, n_sample):
+    """
+    サンプル数が同じ（固定長な）3次元のtriangleデータセットを返す．
+    :param n_class: triangleを何個生成するかを指定する
+    :param n_sample: 1クラスあたりのサンプル数
+    :return: 形状が(n_class, n_sample, dim=3)のnumpy配列を返す．
+    """
+    datasets = np.zeros((n_class, n_sample, 3))
+    theta = np.linspace(-np.pi / 12, np.pi / 12, n_class)
+    for n in range(n_class):
+        min_X, max_X = 0, 4
+        min_Y, max_Y = -1, 1
+        X = np.random.uniform(min_X, max_X, n_sample)
+        Y = np.zeros(n_sample)
+        for s in range(n_sample):
+            deltaY = (max_Y * X[s]) / max_X
+            Y[s] = np.random.uniform(-deltaY, deltaY)
+        rotate_X = X * np.cos(theta[n]) + Y * np.sin(theta[n])
+        rotate_Y = X * np.sin(theta[n]) - Y * np.cos(theta[n])
+        rotate_X -= np.mean(rotate_X)
+        rotate_Y -= np.mean(rotate_Y)
+        datasets[n][:, 0] = rotate_X
+        datasets[n][:, 1] = rotate_Y
+        datasets[n][:, 2] = n - n_class / 2
     return datasets
 
 if __name__ == '__main__':
