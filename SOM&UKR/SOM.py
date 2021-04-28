@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 class SOM(object):
-    def __init__(self, latent_dim, epoch, K, σ_max, σ_min):
+    def __init__(self, latent_dim, epoch, K, σ_max, σ_min, tau):
         self.L = latent_dim
         self.K = K
         self.T = epoch
         self.σ_max = σ_max
         self.σ_min = σ_min
+        self.tau = tau
         self.resolution = 10
 
     def fit(self, X):
@@ -26,8 +27,13 @@ class SOM(object):
         self.zeta = np.c_[xx, yy]  # c_･･･xxとyyを統合
         Z = np.random.rand(N, self.L)
 
+        self.σ_list = np.zeros((self.T))
+
         for T in range(self.T):
-            σ = ((self.σ_min - self.σ_max) / self.T)*T + self.σ_max
+            σ = ((self.σ_min - self.σ_max) / self.T) * T + self.σ_max
+            # σ = self.σ_min + (self.σ_max - self.σ_min) * np.exp(-T / self.tau)
+            self.σ_list[T] = σ 
+
             y = self.NW(self.zeta, Z, X, σ)
             Dist = np.sum((X[None, :, :] - y[:, None, :])**2,axis=2)
             #次元Dをsumしている。それにより, N*K
@@ -50,7 +56,8 @@ class SOM(object):
 if __name__ == '__main__':
     from data import gen_saddle_shape
     X = gen_saddle_shape(100, noise_scale=0.0)
-    som = SOM(latent_dim=2, epoch=200, K=100, σ_max=2.0, σ_min=0.03)
+    epoch = 100
+    som = SOM(latent_dim=2, epoch=epoch, K=100, σ_max=2.0, σ_min=0.03, tau=50)
     som.fit(X)
     print("Z : ", som.history_Z.shape)
 
@@ -74,6 +81,8 @@ if __name__ == '__main__':
         ax_observable.set_title('observable_space')
         ax_latent.set_title('latent_space')
 
-    ani = animation.FuncAnimation(fig, update, fargs=(som.zeta, som.history_Z, som.f, X), interval=100, frames=200)
+    ani = animation.FuncAnimation(fig, update, fargs=(som.zeta, som.history_Z, som.f, X), interval=100, frames=epoch)
     # ani.save("tmp.gif", writer = "pillow")
+    σ_t = np.linspace(0, epoch, epoch)
+    plt.plot(σ_t, som.σ_list)
     plt.show()
