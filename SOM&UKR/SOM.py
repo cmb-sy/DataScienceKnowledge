@@ -55,9 +55,9 @@ class SOM(object):
 
 if __name__ == '__main__':
     from data import gen_saddle_shape
-    X = gen_saddle_shape(100, noise_scale=0.0)
-    epoch = 100
-    som = SOM(latent_dim=2, epoch=epoch, K=100, σ_max=2.0, σ_min=0.03, tau=50)
+    X = gen_saddle_shape(100,random_seed=10, noise_scale=0.0)
+    epoch = 150
+    som = SOM(latent_dim=2, epoch=epoch, K=100, σ_max=3.0, σ_min=0.02, tau=60)
     som.fit(X)
     print("Z : ", som.history_Z.shape)
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
         ax_latent.set_title('latent_space')
 
     ani = animation.FuncAnimation(fig, update, fargs=(som.zeta, som.history_Z, som.f, X), interval=100, frames=epoch)
-    # ani.save("tmp.gif", writer = "pillow")
-    σ_t = np.linspace(0, epoch, epoch)
-    plt.plot(σ_t, som.σ_list)
+    ani.save("tmp.gif", writer = "pillow")
+    # σ_t = np.linspace(0, epoch, epoch)
+    # plt.plot(σ_t, som.σ_list)
     plt.show()
