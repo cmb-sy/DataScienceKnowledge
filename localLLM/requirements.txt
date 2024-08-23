@@ -1,0 +1,5 @@
+scikit-build-core>=0.5.1
+pathspec>=0.10.1
+pyproject-metadata>=0.5
+cmake>=3.21
+llama-cpp-python
